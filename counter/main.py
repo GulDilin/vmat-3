@@ -10,10 +10,14 @@ accuracy = 0.01
 RED = "#E35656"
 
 
+def diff_all_dots(x, y):
+    return [(y[i]-y[i-1])/(x[i]-x[i-1]) for i in range(1, len(y))], x[1:]
+
+
 if __name__ == '__main__':
     f = lambda x: - x ** 2 + 1
 
-    delta = (right - left) / 1000
+    delta = (right - left) / 10000
     x = np.arange(left, right + delta, delta, dtype=float)
     y = [f(i) for i in x]
     func_str = "-x ** 2 + 1"
