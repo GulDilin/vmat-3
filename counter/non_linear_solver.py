@@ -40,7 +40,7 @@ def count_root_hord(f, xx, yy, acc):
         y = eval(f)
         new_x = x - (b - x) / (yy[-1] - y) * y if not from_right else x - (a - x) / (yy[0] - y) * y
         if abs(new_x - old_x) <= acc:
-            return new_x, iter_count
+            return new_x, iter_count, new_x - old_x
         old_x = new_x
 
 
@@ -68,7 +68,7 @@ def count_root_tangent(f, xx, yy, acc):
         y1, x1 = diff_all_dots([y_l, y], [x, old_x])
         new_x = old_x - y / y1[-1]
         if abs(new_x - old_x) <= acc:
-            return new_x, iter_count
+            return new_x, iter_count, new_x - old_x
         old_x = new_x
 
 

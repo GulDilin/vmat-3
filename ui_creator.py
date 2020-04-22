@@ -169,21 +169,25 @@ class OneEqCreator:
 
         plt.grid(True)
 
-        axis1 = (plt.axes([0.85, 0.75, 0.14, 0.05]))
-        axis2 = (plt.axes([0.85, 0.65, 0.14, 0.05]))
-        axis3 = (plt.axes([0.85, 0.55, 0.14, 0.05]))
-        axes_f1 = (plt.axes([0.15, 0.9, 0.30, 0.05]))
-        axes_answer = (plt.axes([0.15, 0.75, 0.30, 0.05]))
-        axes_answer_i = (plt.axes([0.15, 0.83, 0.30, 0.05]))
+        axis1 = (plt.axes([0.65, 0.92, 0.3, 0.05]))
+        axis2 = (plt.axes([0.65, 0.85, 0.3, 0.05]))
+        axis3 = (plt.axes([0.65, 0.78, 0.3, 0.05]))
+        axis_error = (plt.axes([0.65, 0.71, 0.3, 0.05]))
+        axes_f1 = (plt.axes([0.15, 0.92, 0.30, 0.05]))
+        axes_answer = (plt.axes([0.15, 0.78, 0.30, 0.05]))
+        axes_answer_i = (plt.axes([0.15, 0.85, 0.30, 0.05]))
+        axes_answer_y = (plt.axes([0.15, 0.71, 0.30, 0.05]))
         axis6 = (plt.axes([0.75, 0.25, 0.2, 0.25]))
         axes_button_calculate = plt.axes([0.72, 0.05, 0.25, 0.075])
 
-        self.left_text = TextBox(axis1, 'Left limit', label_pad=0.01)
-        self.right_text = TextBox(axis2, 'Right limit', label_pad=0.01)
-        self.acc_text = TextBox(axis3, 'Accuracy')
-        self.function = TextBox(axes_f1, 'Function')
+        self.left_text = TextBox(axis1, 'Left limit ', label_pad=0.01)
+        self.right_text = TextBox(axis2, 'Right limit ', label_pad=0.01)
+        self.acc_text = TextBox(axis3, 'Accuracy ')
+        self.function = TextBox(axes_f1, 'Function ')
         self.answer = TextBox(axes_answer, 'Answer x = ')
+        self.answer_error = TextBox(axis_error, 'Got error = ')
         self.answer_i = TextBox(axes_answer_i, 'Iterations = ')
+        self.answer_y = TextBox(axes_answer_y, 'Answer y = ')
         self.hord_radio = RadioButtons(axis6, ["Hord", "Tangent"], active=0)
         self.catulate_btn = Button(axes_button_calculate, "Calculate")
 
@@ -250,8 +254,8 @@ class OneEqCreator:
         self.ax = self.fig.add_axes(self.main_axes)
         self.plot, *a = self.ax.plot(self.x, self.y)
         self.ax.plot(self.x, 0 * self.x)
-        if self.x[0] <= 0 <= self.x[-1] or self.x[0] >= 0 >= self.x[-1]:
-            self.ax.plot(0 * self.x, self.y)
+        if self.left * self.right < 0:
+            self.ax.plot([0, 0], [max(self.y), min([*self.y, 0])])
         plt.grid(True)
         plt.draw()
 
@@ -259,12 +263,15 @@ class OneEqCreator:
         self.update(None)
         try:
             if self.is_hord:
-                root, i = count_root_hord(self.func_str, yy=self.y, xx=self.x, acc=self.accuracy)
+                root, i, e = count_root_hord(self.func_str, yy=self.y, xx=self.x, acc=self.accuracy)
             else:
-                root, i = count_root_tangent(self.func_str, yy=self.y, xx=self.x, acc=self.accuracy)
+                root, i, e = count_root_tangent(self.func_str, yy=self.y, xx=self.x, acc=self.accuracy)
             self.answer.set_val(root)
             self.answer_i.set_val(i)
             self.ax.scatter(root, 0, color="black")
+            x = root
+            self.answer_y.set_val(eval(self.func_str))
+            self.answer_error.set_val(e)
         except SignError:
             self.ax.text(self.x[0], self.y[0], 'No roots', style='italic',
                          bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
@@ -273,7 +280,11 @@ class OneEqCreator:
                          bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
 
     def show(self):
-        self.answer.color = 'white'
+        self.answer_y.active = False
+        self.answer.active = False
+        self.answer_i.active = False
+        self.answer_error.active = False
+
         self.left_text.set_val("-2")
         self.right_text.set_val("2")
         self.function.set_val(self.func_str)
