@@ -1,5 +1,7 @@
 import numpy as np
-from numpy import sin, cos, tan, arccos, arcsin, arctan, abs
+from numpy import sin, cos, tan, arccos, arcsin, arctan, abs, sqrt, exp
+import gauss
+
 
 class SignError(Exception):
     pass
@@ -61,7 +63,7 @@ def count_root_tangent(f, xx, yy, acc, ax=None):
     while True:
         x = old_x
         y = eval(f)
-        d = (old_x - a) / 1000
+        d = 1.0e-5
         x = old_x - d
         y_l = eval(f)
         y1, x1 = diff_all_dots([y_l, y], [x, old_x])
@@ -73,5 +75,38 @@ def count_root_tangent(f, xx, yy, acc, ax=None):
             return new_x
         old_x = new_x
 
-def solve_system_newton(f1, f2, yy1, yy2):
-    pass
+
+def jacobian(f, x):
+    if len(f) != len(x):
+        raise ValueError('f and x need be same length')
+    h = 1.0e-5
+    n = len(x)
+    return [[(f[i](x) - f[i](x[:k] + [x[k] - h] + x[k + 1:])) / h for k in range(n)] for i in range(n)]
+    # Jac = np.array([[0 for _ in range(n)] for _ in range(n)])
+
+
+def newton(f, x, acc):
+    if len(f) != len(x):
+        raise ValueError('f and x need be same length')
+    max_iterations = 100
+    old_x = x
+    for i in range(max_iterations):
+        Jac = jacobian(f, x)
+        for i in range(len(Jac)):
+            print(Jac[i])
+        matrix = [Jac[i] + [f[i](x)] for i in range(len(x))]
+        print()
+        for i in range(len(matrix)):
+            print(matrix[i])
+        sys = gauss.SLAU(matrix)
+        sys.make_triangle()
+        sys.solve()
+        dx = sys.solution
+        # dx = linalg.solve(Jac, fO)
+        x = [x[i] - dx[i] for i in range(len(x))]
+        print([abs(x[i] - old_x[i]) for i in range(len(x))])
+        print([abs(x[i] - old_x[i]) <= acc for i in range(len(x))])
+        if sum([1 if abs(x[i] - old_x[i]) <= acc else 0 for i in range(len(x))]) == len(x):
+            return x, i + 1
+        old_x = x
+    return old_x, max_iterations
