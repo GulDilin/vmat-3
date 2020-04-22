@@ -1,8 +1,3 @@
-import matplotlib.pyplot as plt
-from matplotlib.widgets import Button, TextBox, RadioButtons
-import numpy as np
-from numpy import sin, cos, tan, arccos, arcsin, arctan, abs
-from non_linear_solver import count_root_tangent, count_root_hord, SignError, FirstDiffSignError, SecondDiffSignError
 import argparse
 import ui_creator
 
